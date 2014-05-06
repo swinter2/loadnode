@@ -1,0 +1,14 @@
+{
+  "name": "loadnode",
+  "version": "0.0.0",
+  "description": "A simple load testing tool.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sam Winter",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.34.0"
+  }
+}
