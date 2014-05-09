@@ -1,49 +1,54 @@
 var spawn = require('child_process').spawn;
 
-// var url = "http://pepco.local:8013/";
-// var url = "http://pepco.demo.ekdev.silvertech.net/";
-// var url = "http://pepco.demo.ekdev.silvertech.net/outage-center/";
-// var url = "http://pepco.local:8013/library/templates/Interior.aspx?pageid=740&site=pepco";
-// var url = "http://pepco.demo.ekdev.silvertech.net/outage-center/";
-// var url = "http://pepco.demo.ekdev.silvertech.net/press-releases/";
-// var url = "http://pepco.local:8013/library/templates/Interior.aspx?pageid=591&site=pepco";
-
-var url = [
-    "http://pepco.demo.ekdev.silvertech.net/",
-    "http://pepco.demo.ekdev.silvertech.net/press-releases/",
-    "http://pepco.demo.ekdev.silvertech.net/outage-center/"
+var host = 'http://edwards.local:8013';
+var paths = [
+    "/"
+    // "/about-us/",
+    // "/Atlas_Abatement.aspx",
+    // "/Markets.aspx",
+    // "/media/"
 ];
+var url = [];
+for(var i in paths) {
+    url.push(host + paths[i]);
+}
 
 console.log("Spawning load tester processes...")
 
-var worker1 = spawn('node', ['app.js', '20', '1', url[0]]);
-var worker2 = spawn('node', ['app.js', '20', '1', url[1]]);
-var worker3 = spawn('node', ['app.js', '20', '1', url[2]]);
-var worker4 = spawn('node', ['app.js', '20', '1', url[0]]);
-var worker5 = spawn('node', ['app.js', '20', '3', url[1]]);
+function daemons() {
+    return "" + 20;
+}
+function r(len) {
+    len = len || url.length;
+    return Math.floor(Math.random() * len);
+}
+function rs(max) {
+    // return "1";
+    max = max || 3;
+    return "" + Math.floor((Math.random() * max) + 1);
+}
+function getUrl() {
+    return url[r()];
+}
 
-worker1.stdout.on("data", function (data) {
-    console.log("worker-1| " + data);
-});
-worker2.stdout.on("data", function (data) {
-    console.log("worker-2| " + data);
-});
-worker3.stdout.on("data", function (data) {
-    console.log("worker-3| " + data);
-});
-worker4.stdout.on("data", function (data) {
-    console.log("worker-4| " + data);
-});
-worker5.stdout.on("data", function (data) {
-    console.log("worker-5| " + data);
-});
+function makeWorker(id) {
+    id = id || 0;
+    var w = spawn('node', ['app.js', daemons(), rs(), getUrl()]);
+    w.stdout.on("data", function (data) {
+        console.log("worker-" + id + "| " + data);
+    });
+    return w;
+}
+
+var workers = [];
+for (var i=1; i<=5; i++) {
+    workers.push(makeWorker(i));
+}
 
 process.on("SIGINT", function () {
     console.log("Killing child processes...");
-    worker1.kill("SIGINT");
-    worker2.kill("SIGINT");
-    worker3.kill("SIGINT");
-    worker4.kill("SIGINT");
-    worker5.kill("SIGINT");
+    for (var i in workers) {
+        workers[i].kill("SIGINT");
+    }
     console.log("Exiting...");
 });
