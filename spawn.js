@@ -1,12 +1,10 @@
 var spawn = require('child_process').spawn;
 
-var host = 'http://edwards.local:8013';
+var host = 'http://localhost:80';
 var paths = [
     "/"
     // "/about-us/",
-    // "/Atlas_Abatement.aspx",
-    // "/Markets.aspx",
-    // "/media/"
+    // "/etc/"
 ];
 var url = [];
 for(var i in paths) {
